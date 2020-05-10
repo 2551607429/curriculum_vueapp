@@ -1,0 +1,2 @@
+# curriculum_vueapp
+该部分是基于SSM的高校课程考核管理系统的前端

@@ -160,6 +160,9 @@
                   })
                 }
                 else if(this.LoginForm.option == 2){
+                  this.$router.push({
+                    path: '/teacher_index'
+                  })
                 }
                 else if(this.LoginForm.option == 3){
                   this.$router.push({

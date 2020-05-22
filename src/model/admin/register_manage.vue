@@ -77,7 +77,7 @@
           loading: true
         }
       },
-      mounted(){
+      created(){
         this.registerInit();
       },
       methods: {

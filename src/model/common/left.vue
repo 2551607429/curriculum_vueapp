@@ -2,14 +2,15 @@
   <div class="leftBorder">
     <div class="left" v-bind:style="{display: menuStyle1}">
       <el-menu
-        default-active="1"
+        :default-active = "this.$route.path"
         :router = "true"
-        class="el-menu-vertical-demo"
+        class="child-item"
         @open="handleOpen"
         @close="handleClose"
-        background-color="#313335"
-        text-color="#fff"
-        active-text-color="#ffd04b">
+        background-color="#304156"
+        text-color="#bfcbd9"
+        :unique-opened="true"
+        active-text-color="#409eff">
         <el-menu-item index="1" route="/student_index">
           <i class="el-icon-menu"></i>
           <span slot="title">首页</span>
@@ -27,42 +28,50 @@
             <i class="el-icon-document"></i>
             <span slot="title">课程考核</span>
           </template>
-          <el-menu-item index="3-1">参加考核</el-menu-item>
-          <el-menu-item index="3-2">考核安排</el-menu-item>
-          <el-menu-item index="3-3">考核成绩</el-menu-item>
+          <el-menu-item index="/examList_list">参加考核</el-menu-item>
+          <el-menu-item index="3-2">查看考核详情</el-menu-item>
         </el-submenu>
       </el-menu>
     </div>
     <div class="left" v-bind:style="{display: menuStyle2}">
       <el-menu
-        default-active="1"
+        :default-active = "this.$route.path"
         :router = "true"
-        class="el-menu-vertical-demo"
+        class="child-item"
         @open="handleOpen"
         @close="handleClose"
-        background-color="#313335"
-        text-color="#fff"
-        active-text-color="#ffd04b">
-        <el-menu-item index="1" route="/StudentIndex">
+        background-color="#304156"
+        text-color="#bfcbd9"
+        :unique-opened="true"
+        active-text-color="#409eff">
+        <el-menu-item index="/teacher_index" class="first">
           <i class="el-icon-menu"></i>
           <span slot="title">首页</span>
         </el-menu-item>
         <el-submenu index="2">
           <template slot="title">
-            <i class="el-icon-notebook-1"></i>
-            <span slot="title">学习知识</span>
+            <i class="el-icon-s-management"></i>
+            <span slot="title">考核管理</span>
           </template>
-          <el-menu-item index="2-1">已选课程</el-menu-item>
-          <el-menu-item index="2-2">学习课程知识</el-menu-item>
+          <el-menu-item index="/question_manage"><i class="el-icon-s-order"></i>题库管理</el-menu-item>
+          <el-menu-item index="/exam_manage"><i class="el-icon-collection"></i>考试管理</el-menu-item>
+          <el-menu-item index="/correcting_papers"><i class="el-icon-s-fold"></i>批改试卷</el-menu-item>
+          <el-menu-item index="/"><i class="el-icon-s-data"></i>考核详情</el-menu-item>
         </el-submenu>
         <el-submenu index="3">
           <template slot="title">
-            <i class="el-icon-document"></i>
-            <span slot="title">课程考核</span>
+            <i class="el-icon-s-custom"></i>
+            <span slot="title">学习管理</span>
           </template>
-          <el-menu-item index="3-1">参加考核</el-menu-item>
-          <el-menu-item index="3-2">考核安排</el-menu-item>
-          <el-menu-item index="3-3">考核成绩</el-menu-item>
+          <el-menu-item index="/"><i class="el-icon-user"></i>知识点管理</el-menu-item>
+          <el-menu-item index="/"><i class="el-icon-user-solid"></i>查看学习情况</el-menu-item>
+        </el-submenu>
+        <el-submenu index="4">
+          <template slot="title">
+            <i class="el-icon-s-tools"></i>
+            <span slot="title">系统管理</span>
+          </template>
+          <el-menu-item index="/notice_manage"><i class="el-icon-message-solid"></i>公告管理</el-menu-item>
         </el-submenu>
       </el-menu>
     </div>
@@ -131,7 +140,7 @@
           },
         }
       },
-      mounted(){
+      created(){
         this.selectMenu()
       },
       methods: {
@@ -168,6 +177,7 @@
     padding-top: 63px;
     background-color: #304156;
     float: left;
+    position: fixed;
     z-index: 0;
   }
   .left{

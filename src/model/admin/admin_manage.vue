@@ -89,7 +89,7 @@
           currentPage: 1,
         };
       },
-      mounted(){
+      created(){
         this.adminInit(this.page,this.pageSize);
       },
       methods: {

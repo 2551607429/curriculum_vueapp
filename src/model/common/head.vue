@@ -38,11 +38,11 @@
 </template>
 
 <script>
-  import * as HeadApi from "../api/head"
-  import util from '../../base/api/util'
+  import * as HeadApi from "../home/api/head"
+  import util from '../base/api/util'
     export default {
       name: "head-com",
-      mounted:function(){
+      created:function(){
         //将loadHead()方法设置为公共的函数
         util.$on('noticeState',(noticeState)=>{
           this.loadHead();
@@ -89,7 +89,7 @@
     height: 60px;
     width: 100%;
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     background-color: white;
   }
   .left{

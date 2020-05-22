@@ -28,13 +28,24 @@ router.beforeEach((to, from, next) => {
     if (getCookie('username') !== null) {
       //是否判断当前用户是否是管理员
       if (to.matched.some(m => m.meta.admin)) {
-        //是否可以获取到用户名
+        //当前身份是否 是管理员
         if (getCookie('option') === '3') {
           next()
         }
         else {
           next({path: '/login'});
           Vue.prototype.$message.warning('检测到您不是管理员,请登录管理员账号后操作！')
+        }
+      }
+      //是否判断当前用户是否是教师
+      else if (to.matched.some(m => m.meta.teacher)) {
+        //当前身份是否 是教师
+        if (getCookie('option') === '2') {
+          next()
+        }
+        else {
+          next({path: '/login'});
+          Vue.prototype.$message.warning('检测到您不是教师,请登录教师账号后操作！')
         }
       }
       else{

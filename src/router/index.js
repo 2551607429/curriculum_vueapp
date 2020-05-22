@@ -3,12 +3,13 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import StudentIndex from '@/model/student/student_index'
 import AdminIndex from '@/model/admin/admin_index'
-import coop from '@/model/base/components/cooperation'
+import TeacherIndex from '@/model/teacher/teacher_index'
 import Login from "../model/home/login"
 import Register from "../model/home/register"
 import NoticeInfo from "../model/common/notice_info"
 import UserInfo from "../model/common/user_info"
 import Password from "../model/common/password"
+
 import TypeManage from '@/model/admin/type_manage'
 import CurriculumManage from '@/model/admin/curriculum_manage'
 import ChapterManage from '@/model/admin/chapter_manage'
@@ -20,6 +21,15 @@ import NoticeManage from '@/model/admin/notice_manage'
 import RegisterManage from '@/model/admin/register_manage'
 import CollegeManage from '@/model/admin/college_manage'
 import ClassManage from '@/model/admin/class_manage'
+
+import QuestionManage from '@/model/teacher/question_manage'
+import ExamManage from '@/model/teacher/exam_manage'
+import CorrectingPapers from '@/model/teacher/correcting_papers'
+
+import examIndex from '@/components/examIndex'
+import ExamList from '@/model/student/exam_list'
+import Exam from '@/model/student/exam'
+
 
 Vue.use(Router);
 
@@ -38,6 +48,21 @@ export default new Router({
       path:'/register',
       name:'register',
       component:Register
+    },
+    {
+      path:'/examIndex',
+      name:'examIndex',
+      component: examIndex,
+      children:[
+        {
+          path: '/exam',
+          name: 'exam',
+          component: Exam,
+          meta: {
+            judgeLogin: true,
+          }
+        },
+      ]
     },
     {
       path: '/HelloWorld',
@@ -79,6 +104,14 @@ export default new Router({
           meta: {
             judgeLogin: true,
             admin:true
+          }
+        },{
+          path:'/teacher_index',
+          name:'teacher_index',
+          component:TeacherIndex,
+          meta: {
+            judgeLogin: true,
+            teacher:true
           }
         },{
           path:'/type_manage',
@@ -167,13 +200,39 @@ export default new Router({
             judgeLogin: true,
             admin:true
           }
+        },{
+          path:'/question_manage',
+          name:'question_manage',
+          component:QuestionManage,
+          meta: {
+            judgeLogin: true,
+            teacher:true
+          }
+        },{
+          path:'/exam_manage',
+          name:'exam_manage',
+          component:ExamManage,
+          meta: {
+            judgeLogin: true,
+            teacher:true
+          }
+        },{
+          path:'/correcting_papers',
+          name:'correcting_papers',
+          component:CorrectingPapers,
+          meta: {
+            judgeLogin: true,
+            teacher:true
+          }
+        },{
+          path:'/exam_list',
+          name:'exam_list',
+          component:ExamList,
+          meta: {
+            judgeLogin: true
+          }
         },
       ]
-    },
-    {
-      path: '/xx',
-      name: 'coop',
-      component: coop,
     }
   ]
 })

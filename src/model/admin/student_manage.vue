@@ -139,7 +139,7 @@
               <span style="color: #67c23a;margin-left: 30px">成功总记录条数：{{ successCount }}</span>
               <span style="color: #FF0000;margin-left: 30px">失败总记录条数：{{ failCount }}</span>
             </div>
-            <el-table :data="failData" border highlight-current-row height="400" style="width: 100%;margin-top:20px;">
+            <el-table :data="failData" border highlight-current-row height="210" style="width: 100%;margin-top:20px;">
               <el-table-column v-for="(item, index) of tableHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width" />
             </el-table>
           </div>

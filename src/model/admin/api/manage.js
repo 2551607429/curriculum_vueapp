@@ -408,8 +408,8 @@ export const editTeaching = (params) => {
  * @param params
  * @returns {Promise | Promise<unknown>}
  */
-export const teacherInfo = (params) => {
-  return http.requestPost( apiUrl+'/admin/teacher_info', params);
+export const teacherInfo = () => {
+  return http.requestPost( apiUrl+'/admin/teacher_info');
 };
 
 /**

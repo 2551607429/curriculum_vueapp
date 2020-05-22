@@ -95,7 +95,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="班级" prop="classId">
-              <el-select v-model="addForm.classId" multiple filterable placeholder="请选择任课班级">
+              <el-select v-model="addForm.classId" filterable placeholder="请选择任课班级">
                 <el-option
                   v-for="item in classInfo"
                   :key="item.id"
@@ -144,28 +144,61 @@
               <span style="color: #67c23a;margin-left: 30px">成功总记录条数：{{ successCount }}</span>
               <span style="color: #FF0000;margin-left: 30px">失败总记录条数：{{ failCount }}</span>
             </div>
-            <el-table :data="failData" border highlight-current-row height="400" style="width: 100%;margin-top:20px;">
-              <el-table-column v-for="(item, index) of tableHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width" />
+            <el-table :data="failData" border highlight-current-row height="210" style="width: 100%;margin-top:20px;">
+              <el-table-column v-for="(item, index) of tableHeader"
+                               :key="index" :prop="item.prop"
+                               :label="item.label" :width="item.width"
+                               :formatter="item.formatter"/>
             </el-table>
           </div>
         </el-tab-pane>
       </el-tabs>
     </div>
     <el-dialog title="修改任课信息" :visible.sync="dialogFormVisible">
-      <el-form :model="editTable"  class="labelColor">
-        <el-form-item label="任课名称" :label-width="formLabelWidth">
-          <el-input v-model="editTable.name"></el-input>
+      <el-form :model="editTable" :rules="rules" class="labelColor" ref="editTable" :label-width="formLabelWidth">
+        <el-form-item label="教师" prop="teacherId">
+          <el-select v-model="editTable.teacherId" disabled filterable placeholder="请选择任课教师">
+            <el-option
+              v-for="item in teacherInfo"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="任课章节数" :label-width="formLabelWidth">
-          <el-input v-model="editTable.chapterCount" autocomplete="off"></el-input>
+        <el-form-item label="班级" prop="classId">
+          <el-select v-model="editTable.classId" disabled filterable placeholder="请选择任课班级">
+            <el-option
+              v-for="item in classInfo"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="任课信息简介" :label-width="formLabelWidth">
-          <el-input type="textarea" v-model="editTable.info" autocomplete="off"></el-input>
+        <el-form-item label="课程" prop="curriculumId">
+          <el-select v-model="editTable.curriculumId" disabled filterable placeholder="请选择任课课程">
+            <el-option
+              v-for="item in curriculumInfo"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="任课日期范围" prop="teachingDate">
+          <el-date-picker
+            v-model="editTable.teachingDate"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份">
+          </el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editRow()">确 定</el-button>
+        <el-button type="primary" @click="editRow('editTable')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -173,7 +206,6 @@
 
 <script>
     import UploadExcelComponent from '@/components/UploadExcel/index.vue'
-    import notice from './notice_manage'
     import * as teachingApi from "./api/manage";
     import waves from '@/directive/waves'
     import * as loginApi from "../home/api/login"; // Waves directive
@@ -195,9 +227,11 @@
           tableData: [],
           editTable: {
             id: '',
-            name: '',
-            chapterCount: '',
-            info: ''
+            teacherId: '',
+            classId: '',
+            className: '',
+            curriculumId: '',
+            teachingDate: '',
           },
           selectIndex: '',
           addForm: {
@@ -218,7 +252,9 @@
             count: ''
           },
           teachingInfo:{
-            id: [],
+            teacherId: [],
+            classId: [],
+            curriculumId: [],
             option: this.$cookieStore.getCookie('option'),
             username: this.$cookieStore.getCookie('username')
           },
@@ -245,12 +281,12 @@
               { required: true, message: '请选择任课课程', trigger: 'change' }
             ],
             teachingDate: [
-              { type: 'date', required: true, message: '请选择任课日期', trigger: 'change' }
+              { required: true, message: '请选择任课日期', trigger: 'change' }
             ],
           }
         }
       },
-      mounted(){
+      created(){
         this.teachingInit(this.page,this.pageSize);
       },
       methods: {
@@ -289,9 +325,12 @@
           this.downloadLoading = true;
           import('@/vendor/Export2Excel').then(excel => {
             const tHeader = [
-              '(必填)任课名称',
-              '(必填)任课章节数',
-              '(必填)任课信息简介'
+              '(必填)任课教师编号(例:文本0200001)',
+              '(必填)任课教师',
+              '(必填)任课班级(只能填写一个)',
+              '(必填)任课课程',
+              '(必填)开始任课日期(例:文本2001-01-01)',
+              '(必填)结束任课日期(例:文本2001-09-12)',
             ];
             excel.export_json_to_excel({
               header: tHeader,
@@ -315,32 +354,47 @@
         },
         //存储内容
         handleSuccess({ results, header }) {
+          console.log(results);
           const teachingList = [];
           results.forEach((item, index) => {
             const teaching = {};
             Object.keys(item).forEach((key) => {
-              if (key === '(必填)任课名称') {
-                teaching.name = (String)(item[key])
+              if (key === '(必填)任课教师编号(例:文本0200001)') {
+                teaching.teachId = (String)(item[key])
               }
-              if (key === '(必填)任课章节数') {
-                teaching.chapterCount = item[key]
+              if (key === '(必填)任课教师') {
+                teaching.teacherName = (String)(item[key])
               }
-              if (key === '(必填)任课信息简介') {
-                teaching.info = (String)(item[key])
+              if (key === '(必填)任课班级(只能填写一个)') {
+                teaching.className = (String)(item[key])
+              }
+              if (key === '(必填)任课课程') {
+                teaching.curriculumName = (String)(item[key])
+              }
+              if (key === '(必填)开始任课日期(例:文本2001-01-01)') {
+                teaching.startTime = (String)(item[key])
+              }
+              if (key === '(必填)结束任课日期(例:文本2001-09-12)') {
+                teaching.endTime = (String)(item[key])
               }
             });
+            console.log(teaching);
             teachingList.push(teaching)
           });
           this.insertTeachingInfoList(teachingList)
         },
-        // 插入数据库学生信息表
+        // 插入数据库任课信息表
         async insertTeachingInfoList(teachingList) {
           teachingApi.uploadTeaching(teachingList).then(res=>{
             if (res.code === '200') {
               this.tableHeader = [
-                {prop:'name',label:'任课名称',width:'140'},
-                {prop:'chapterCount',label:'任课章节数',width:'140'},
-                {prop:'info',label:'任课章节数',width:'120'}];
+                {prop:'teachId',label:'教师编号',width:'120'},
+                {prop:'teacherName',label:'教师姓名',width:'130'},
+                {prop:'curriculumName',label:'课程名称',width:'130'},
+                {prop:'className',label:'班级名称',width:'140'},
+                {prop:'startTime',label:'开始时间',formatter:this.timestampToTime,width:'140'},
+                {prop:'endTime',label:'结束时间',formatter:this.timestampToTimeEnd,width:'140'},
+                {prop:'key',label:'上传失败原因',width:'240'}];
               this.failData = res.data.responseList[0];
               this.allCount = res.data.allCount;
               this.successCount = res.data.successCount;
@@ -382,7 +436,7 @@
             }
           });
           //获取课程信息
-          teachingApi.curriculumInfo().then(res=>{
+          teachingApi.curriculumInfo(this.userInfo).then(res=>{
             this.curriculumInfo = [];
             for(let i in res){
               this.curriculumInfo.push(res[i]);
@@ -411,6 +465,30 @@
             }
           });
         },
+        //通过教师编号查询教师名称
+        teacherByName(id){
+          for(let col in this.teacherInfo){
+            if(this.teacherInfo[col].id === id){
+              return this.teacherInfo[col].name;
+            }
+          }
+        },
+        //通过班级编号查询班级名称
+        classByName(id){
+          for(let col in this.classInfo){
+            if(this.classInfo[col].id === id){
+              return this.classInfo[col].name;
+            }
+          }
+        },
+        //通过课程编号查询课程名称
+        curriculumByName(id){
+          for(let col in this.curriculumInfo){
+            if(this.curriculumInfo[col].id === id){
+              return this.curriculumInfo[col].name;
+            }
+          }
+        },
         // 取消选择
         toggleSelection(rows) {
           if (rows) {
@@ -432,51 +510,72 @@
         },
         //显示修改任课对话框
         editForm(index, rows){
+          this.editTable.teachingDate = [];
           this.dialogFormVisible = true;
           this.$refs.multipleTable.toggleRowSelection(rows[index]);
           this.editTable.id = rows[index].id;
-          this.editTable.name = rows[index].name;
-          this.editTable.chapterCount = rows[index].chapterCount;
-          this.editTable.info = rows[index].info;
+          this.editTable.teacherId = rows[index].teacherId;
+          this.editTable.classId = rows[index].classId;
+          this.editTable.className = rows[index].className;
+          this.editTable.curriculumId = rows[index].curriculumId;
+          this.editTable.teachingDate.push(rows[index].startTime);
+          this.editTable.teachingDate.push(rows[index].endTime);
           this.selectIndex = index;
         },
         //修改
-        editRow() {
-          teachingApi.editTeaching(this.editTable).then(res=>{
-            this.$notify({
-              title: '修改提示',
-              message: res.msg,
-              type: res.code === '200'?'success':'error',
-              duration: 2000
-            });
-            this.tableData[this.selectIndex].name = this.editTable.name;
-            this.tableData[this.selectIndex].chapterCount = this.editTable.chapterCount;
-            this.tableData[this.selectIndex].info = this.editTable.info;
-            this.dialogFormVisible = false;
+        editRow(formName) {
+          this.$refs[formName].validate((valid) => {
+            if (valid) {
+              teachingApi.editTeaching(this.$refs[formName].model).then(res=>{
+                this.$notify({
+                  title: '修改提示',
+                  message: res.msg,
+                  type: res.code === '200'?'success':'error',
+                  duration: 4000
+                });
+                this.tableData[this.selectIndex].teacherId = this.editTable.teacherId;
+                this.tableData[this.selectIndex].teacherName = this.teacherByName(this.editTable.teacherId);
+                this.tableData[this.selectIndex].classId = this.editTable.classId;
+                this.tableData[this.selectIndex].className = this.classByName(this.editTable.classId);
+                this.tableData[this.selectIndex].curriculumId = this.editTable.curriculumId;
+                this.tableData[this.selectIndex].curriculumName = this.curriculumByName(this.editTable.curriculumId);
+                this.tableData[this.selectIndex].startTime = this.editTable.teachingDate[0];
+                this.tableData[this.selectIndex].endTime = this.editTable.teachingDate[1];
+                this.dialogFormVisible = false;
+              });
+            }
+            else{
+              return false;
+            }
           });
         },
         //删除一行
         deleteRow(index, rows) {
           var mess = '已取消删除';
-          this.$confirm('此操作将会删除属于该任课的授课信息、知识点、题目, 是否继续?', '提示', {
+          this.$confirm('此操作将会删除属于该任课信息, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            this.teachingInfo.id = [];
-            this.teachingInfo.id.push(rows[index].id);
+            console.log()
+            this.teachingInfo.teacherId = [];
+            this.teachingInfo.classId = [];
+            this.teachingInfo.curriculumId = [];
+            this.teachingInfo.teacherId.push(rows[index].teacherId);
+            this.teachingInfo.classId.push(rows[index].classId);
+            this.teachingInfo.curriculumId.push(rows[index].curriculumId);
             teachingApi.deleteTeaching(this.teachingInfo).then(res=>{
               mess = res.msg;
+              this.$message({
+                type: res.code === '200'?'success':'warning',
+                message: mess
+              });
               if(res.code === '200'){
                 this.total--;
                 rows.splice(index, 1);
               }
               else
                 this.$throw();
-            });
-            this.$message({
-              type: 'success',
-              message: '删除成功！'
             });
           }).catch(() => {
             this.$message({
@@ -487,15 +586,19 @@
         },
         //删除选择的行
         selectDelete(){
-          this.teachingInfo.id = [];
+          this.teachingInfo.teacherId = [];
+          this.teachingInfo.classId = [];
+          this.teachingInfo.curriculumId = [];
           const selectData = this.$refs.multipleTable.selection;
           //得到所选行的公告编号
           for(let i in selectData){
-            this.teachingInfo.id.push(selectData[i].id);
+            this.teachingInfo.teacherId.push(selectData[i].teacherId);
+            this.teachingInfo.classId.push(selectData[i].classId);
+            this.teachingInfo.curriculumId.push(selectData[i].curriculumId);
           }
           if(selectData.length !== 0){
             var mess = '已取消删除';
-            this.$confirm('此操作将会删除属于该任课的授课信息、知识点、题目, 是否继续?', '提示', {
+            this.$confirm('此操作将会删除属于该任课信息, 是否继续?', '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'warning'
@@ -507,7 +610,8 @@
                   selectData.forEach((val, index) => {
                     this.tableData.forEach((v, i) => {
                       // id 是每一行的数据id
-                      if(val.id === v.id){
+                      if(val.teacherId === v.teacherId && val.classId === v.classId &&
+                        val.curriculumId === v.curriculumId){
                         this.tableData.splice(i, 1);
                         this.total--;
                       }

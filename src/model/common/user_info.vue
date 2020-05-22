@@ -185,7 +185,7 @@
           }
         }
       },
-      mounted(){
+      created(){
           this.userInit();
       },
       methods:{
@@ -276,12 +276,14 @@
 
 <style>
   .userInfo{
-    background-color: #eff3f7;
-    margin-top: 3px;
+    /*background-color: #e3e3e3;*/
+    background-color: #f5f7fa;
+    margin-top: 60px;
     float: right;
-    min-height: 570px;
-    width: 78%;
+    min-height: 580px;
+    width: 84%;
     overflow:auto;
+    z-index: -1;
   }
   .userForm{
     margin-left: 40px;

@@ -28,8 +28,8 @@
             <i class="el-icon-document"></i>
             <span slot="title">课程考核</span>
           </template>
-          <el-menu-item index="/examList_list">参加考核</el-menu-item>
-          <el-menu-item index="3-2">查看考核详情</el-menu-item>
+          <el-menu-item index="/exam_list">参加考核</el-menu-item>
+          <el-menu-item index="/exam_score">查看考核详情</el-menu-item>
         </el-submenu>
       </el-menu>
     </div>
@@ -55,8 +55,6 @@
           </template>
           <el-menu-item index="/question_manage"><i class="el-icon-s-order"></i>题库管理</el-menu-item>
           <el-menu-item index="/exam_manage"><i class="el-icon-collection"></i>考试管理</el-menu-item>
-          <el-menu-item index="/correcting_papers"><i class="el-icon-s-fold"></i>批改试卷</el-menu-item>
-          <el-menu-item index="/"><i class="el-icon-s-data"></i>考核详情</el-menu-item>
         </el-submenu>
         <el-submenu index="3">
           <template slot="title">

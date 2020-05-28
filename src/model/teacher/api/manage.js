@@ -149,3 +149,33 @@ export const questionCountType = (params) => {
   return http.requestPost( apiUrl+'/teacher/question_count_type', params);
 };
 
+
+/**
+ * 获取参加考试的学生列表
+ * @param params
+ * @returns {Promise | Promise<unknown>}
+ */
+export const examStudentInit = (params) => {
+  return http.requestPost( apiUrl+'/teacher/exam_student_init', params);
+};
+
+
+/**
+ * 获取学生的答卷信息
+ * @param params
+ * @returns {Promise | Promise<unknown>}
+ */
+export const paperInit = (params) => {
+  return http.requestPost( apiUrl+'/teacher/paper_init', params);
+};
+
+
+/**
+ * 获取学生的答卷信息
+ * @param params
+ * @returns {Promise | Promise<unknown>}
+ */
+export const submitCorrectPaper = (params) => {
+  return http.requestPost( apiUrl+'/teacher/submit_correct_paper', params);
+};
+

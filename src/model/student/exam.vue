@@ -4,7 +4,7 @@
       <span>{{examName}}</span>
     </div>
     <div class="stuExamRight">
-      <el-button type="primary" @click="submitPaper('addForm')">提交试卷</el-button>
+      <el-button type="primary" @click="submitPaper(examData)">提交试卷</el-button>
     </div>
     <div class="stuExamForm">
       <el-form
@@ -33,7 +33,7 @@
             <div v-else-if="item.typeId === 2 || item.typeId === 7" class="answer">
               <div v-for="(list,index) in item.answerList" class="filled">
                 <el-input
-                  v-model="item.stuAnswer"
+                  v-model="item.checkList[index]"
                   style="width:400px"
                   placeholder="请输入内容">
                 </el-input>
@@ -58,10 +58,12 @@
             </div>
             <!--          当是多选题时-->
             <div v-else-if="item.typeId === 5" class="answer">
+              <el-checkbox-group v-model="item.checkList">
                 <el-checkbox class="option" label="A">{{item.optionA}}</el-checkbox><br>
                 <el-checkbox class="option" label="B">{{item.optionB}}</el-checkbox><br>
                 <el-checkbox class="option" label="C">{{item.optionC}}</el-checkbox><br>
                 <el-checkbox class="option" label="D">{{item.optionD}}</el-checkbox>
+              </el-checkbox-group>
             </div>
             <!--          当是其它题型时-->
             <div v-else class="answer">
@@ -99,6 +101,7 @@
           },
           content: '',
           nowTime: '',
+          checkList: [],
           examData: [],
           examName: '',
           examEndTime: '',
@@ -131,10 +134,10 @@
         var that = this;
         setTimeout(function () {
           that.countDowm(that.examEndTime);
-        },3000);
+        },1500);
       },
       methods:{
-        //初始化题型信息
+        //初始化试卷信息
         examInit(){
           examApi.paperInit(this.userInfo).then(res=>{
             for(let i in res){
@@ -160,7 +163,7 @@
               sec = sec < 10 ? "0" + sec : sec;
               let format = '';
               if(day > 0){
-                format =  `${day}h ${hour}:${min}:${sec}`;
+                format =  `${day}d ${hour}:${min}:${sec}`;
               }
               if(day <= 0 && hour > 0 ){
                 format = `${hour}:${min}:${sec}`;
@@ -195,9 +198,12 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
-              this.$message({
-                type: 'success',
-                message: '交卷成功!'
+              examApi.submitPaper(formName).then(res=>{
+                this.$message({
+                  type: res.code === '200' ? 'success' : 'error',
+                  message: res.msg
+                });
+                this.$router.push({ path: '/student_index' });
               });
             }).catch(() => {
               this.$message({

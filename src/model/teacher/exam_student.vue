@@ -1,9 +1,9 @@
 <template>
-  <div class="examList">
+  <div class="examListManage">
     <div>
       <el-tabs type="border-card">
         <el-tab-pane>
-          <span slot="label"><i class="el-icon-date"></i> 考试详情</span>
+          <span slot="label"><i class="el-icon-date"></i> 考试学生列表</span>
           <div class="notice">
             <el-table
               v-loading="loading"
@@ -46,8 +46,8 @@
                     type="primary"
                     icon="el-icon-edit"
                     size="mini"
-                    @click.native.prevent="exam(scope.$index, tableData)"
-                  > 参加考试
+                    @click.native.prevent="correct(scope.$index, tableData)"
+                  > 批改试卷
                   </el-button>
                 </template>
               </el-table-column>
@@ -70,17 +70,17 @@
 </template>
 
 <script>
-    import * as examListApi from "./api/assess";
+    import * as examStudentApi from "./api/manage";
     export default {
-      name: "exam_list",
+      name: "exam_student",
       data() {
         return {
           columns:[
-            {prop:'name',label:'考试姓名',width:'180',show:true},
-            {prop:'startTime',label:'开始时间',width:'180',show:true,formatter:this.timestampToTime},
-            {prop:'endTime',label:'结束时间',width:'180',show:true,formatter:this.timestampToTimeEnd},
-            {prop:'totalScore',label:'总分',width:'60',show:true},
-            {prop:'curriculumName',label:'课程名称',width:'160',show:true},
+            {prop:'examName',label:'考试名称',width:'220',show:true},
+            {prop:'className',label:'班级名称',width:'140',show:true},
+            {prop:'username',label:'用户名',width:'140',show:true},
+            {prop:'name',label:'姓名',width:'140',show:true},
+            {prop:'score',label:'分数',width:'100',show:true}
           ],
           nowTime: '',
           tableData: [],
@@ -94,11 +94,9 @@
           userInfo:{
             username: this.$cookieStore.getCookie('username'),
             option: this.$cookieStore.getCookie('option'),
-            page: '',
-            count: '',
-            key: 1
+            key: this.$cookieStore.getCookie('examId')
           },
-          examListInfo:{
+          examListManageInfo:{
             id: [],
             curriculum: '',
             option: this.$cookieStore.getCookie('option'),
@@ -114,7 +112,7 @@
         }
       },
       created(){
-        this.examListInit(this.page,this.pageSize);
+        this.examStudentInit(this.page,this.pageSize);
         this.getTime();
       },
       methods: {
@@ -166,11 +164,11 @@
           //放回索引值
           return this.pageSize * (this.page - 1)  + 1+ row.index;
         },
-        //初始化题型信息
-        examListInit(page,count){
+        //获取学生考试列表
+        examStudentInit(page,count){
           this.userInfo.page = page;
           this.userInfo.count = count;
-          examListApi.examListInit(this.userInfo).then(res=>{
+          examStudentApi.examStudentInit(this.userInfo).then(res=>{
             for(let i in res.list){
               this.tableData.push(res.list[i]);
             }
@@ -178,21 +176,12 @@
             this.loading = false;
           });
         },
-        //开始考试
-        exam(index, rows){
-          if(this.nowTime >= rows[index].startTime && this.nowTime <= rows[index].endTime){
-            this.$cookieStore.setCookie('examId',rows[index].id);
-            this.$router.push({
-              path: '/exam'
-            })
-          }
-          else{
-            this.$alert('未到考试时间！', '提示', {
-              confirmButtonText: '确定',
-              closeOnPressEscape: 'false',
-              closeOnClickModal: 'true',
-            });
-          }
+        //批改试卷
+        correct(index, rows){
+          this.$cookieStore.setCookie('stuId',rows[index].studentId);
+          this.$router.push({
+            path: '/correcting_papers'
+          });
         },
         // 取消选择
         toggleSelection(rows) {
@@ -218,12 +207,12 @@
           this.loading = true;
           this.tableData = [];
           this.pageSize = val;
-          this.examListInit(this.page,val);
+          this.examListManageInit(this.page,val);
         },
         //点击切换页面按钮
         switchPage(val) {
           this.tableData = [];
-          this.examListInit(val,this.pageSize);
+          this.examListManageInit(val,this.pageSize);
           this.loading = true;
         },
       }
@@ -231,7 +220,7 @@
 </script>
 
 <style>
-  .examList{
+  .examListManage{
     background-color: #e3e3e3;
     margin-top: 60px;
     float: right;

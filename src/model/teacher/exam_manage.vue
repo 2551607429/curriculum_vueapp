@@ -30,6 +30,20 @@
                 type="selection"
                 width="50">
               </el-table-column>
+              <el-table-column type="expand">
+                <template slot-scope="props">
+                  <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item>
+                      <b><span style="color: #999999;">考试范围：</span></b>
+                      <span>{{ props.row.examRange === 1 ? '全部任课学生' : '所选班级'}}</span>
+                    </el-form-item><br>
+                    <el-form-item>
+                      <b><span style="color: #999999;">参加班级：</span></b>
+                      <span>{{ props.row.classNameRange}}</span>
+                    </el-form-item>
+                  </el-form>
+                </template>
+              </el-table-column>
               <template v-for="(item, index) in columns">
                 <el-table-column
                   :prop="item.prop"
@@ -50,22 +64,48 @@
                 fixed="right"
                 label="操作"
                 style="z-index: 0"
-                width="200">
+                width="300">
                 <template slot-scope="scope">
-                  <el-button
-                    type="primary"
-                    icon="el-icon-edit"
-                    size="mini"
-                    @click.native.prevent="editForm(scope.$index, tableData)"
-                  > 编辑
-                  </el-button>
-                  <el-button
-                    type="danger"
-                    icon="el-icon-delete"
-                    size="mini"
-                    @click.native.prevent="deleteRow(scope.$index, tableData)"
-                  > 删除
-                  </el-button>
+                  <el-tooltip class="item" effect="dark" content="编辑" placement="top">
+                    <el-button
+                      type="primary"
+                      icon="el-icon-edit"
+                      size="medium"
+                      circle
+                      @click.native.prevent="editForm(scope.$index, tableData)"
+                    >
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" content="批改试卷" placement="top">
+                    <el-button
+                      type="primary"
+                      icon="el-icon-edit-outline"
+                      size="medium"
+                      circle
+                      @click.native.prevent="correct(scope.$index, tableData)"
+                    >
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" content="统计分析" placement="top">
+                    <el-button
+                      type="primary"
+                      icon="el-icon-s-data"
+                      size="medium"
+                      circle
+                      @click.native.prevent="statistics(scope.$index, tableData)"
+                    >
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" content="删除" placement="top">
+                    <el-button
+                      type="danger"
+                      icon="el-icon-delete"
+                      size="medium"
+                      circle
+                      @click.native.prevent="deleteRow(scope.$index, tableData)"
+                    >
+                    </el-button>
+                  </el-tooltip>
                 </template>
               </el-table-column>
             </el-table>
@@ -221,13 +261,11 @@
       data() {
         return {
           columns:[
-            {prop:'name',label:'考试姓名',width:'100',show:true},
-            {prop:'startTime',label:'开始时间',width:'120',show:true,formatter:this.timestampToTime},
-            {prop:'endTime',label:'结束时间',width:'120',show:true,formatter:this.timestampToTimeEnd},
-            {prop:'totalScore',label:'总分',width:'60',show:true},
-            {prop:'examRange',label:'考试范围',width:'100',show:true},
-            {prop:'classNameRange',label:'参加班级',width:'160',show:true},
-            {prop:'curriculumName',label:'课程名称',width:'120',show:true},
+            {prop:'name',label:'考试姓名',width:'180',show:true},
+            {prop:'startTime',label:'开始时间',width:'140',show:true,formatter:this.timestampToTime},
+            {prop:'endTime',label:'结束时间',width:'140',show:true,formatter:this.timestampToTimeEnd},
+            {prop:'totalScore',label:'总分',width:'100',show:true},
+            {prop:'curriculumName',label:'课程名称',width:'140',show:true},
           ],
           options: [{
             id: '1',
@@ -236,6 +274,7 @@
             id: '2',
             name: '选择指定班级'
           }],
+          nowTime: '',
           failData: [],
           tableData: [],
           editTable: {
@@ -338,8 +377,17 @@
       },
       created(){
         this.examInit(this.page,this.pageSize);
+        this.getTime();
       },
       methods: {
+        //获取当前时间
+        getTime(){
+          setInterval(()=>{
+            //new Date() new一个data对象，当前日期和时间
+            //toLocaleString() 方法可根据本地时间把 Date 对象转换为字符串，并返回结果。
+            this.nowTime = new Date().getTime();
+          },1000)
+        },
         //筛选课程
         filterCurriculum(value, row) {
           return row.curriculumName === value;
@@ -380,6 +428,7 @@
             for(let i in res.list){
               this.tableData.push(res.list[i]);
             }
+            console.log(this.tableData);
             this.total = res.total;
             this.loading = false;
           });
@@ -531,6 +580,38 @@
               return false;
             }
           });
+        },
+        //批改试卷
+        correct(index, rows){
+          if(this.nowTime >= rows[index].endTime){
+            this.$cookieStore.setCookie('examId',rows[index].id);
+            this.$router.push({
+              path: '/exam_student'
+            })
+          }
+          else{
+            this.$alert('考试时间尚未结束！', '提示', {
+              confirmButtonText: '确定',
+              closeOnPressEscape: 'false',
+              closeOnClickModal: 'true',
+            });
+          }
+        },
+        //统计分析
+        statistics(index, rows){
+          if(this.nowTime >= rows[index].endTime){
+            this.$cookieStore.setCookie('examId',rows[index].id);
+            this.$router.push({
+              path: '/exam_statistics'
+            })
+          }
+          else{
+            this.$alert('考试时间尚未结束！', '提示', {
+              confirmButtonText: '确定',
+              closeOnPressEscape: 'false',
+              closeOnClickModal: 'true',
+            });
+          }
         },
         //删除一行
         deleteRow(index, rows) {

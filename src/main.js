@@ -7,8 +7,10 @@ import Vant from 'vant';
 import 'vant/lib/index.css';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import echarts from 'echarts'
 import VueParticles from 'vue-particles'
 import {setCookie,getCookie,delCookie} from '@/model/base/api/util.js'
+Vue.prototype.$echarts = echarts;
 Vue.use(VueParticles);
 Vue.use(Vant);
 Vue.use(ElementUI);

@@ -24,10 +24,13 @@ import ClassManage from '@/model/admin/class_manage'
 
 import QuestionManage from '@/model/teacher/question_manage'
 import ExamManage from '@/model/teacher/exam_manage'
+import ExamStudent from '@/model/teacher/exam_student'
 import CorrectingPapers from '@/model/teacher/correcting_papers'
+import ExamStatistics from '@/model/teacher/exam_statistics'
 
 import examIndex from '@/components/examIndex'
 import ExamList from '@/model/student/exam_list'
+import ExamScore from '@/model/student/exam_score'
 import Exam from '@/model/student/exam'
 
 
@@ -60,6 +63,14 @@ export default new Router({
           component: Exam,
           meta: {
             judgeLogin: true,
+          }
+        },{
+          path:'/correcting_papers',
+          name:'correcting_papers',
+          component:CorrectingPapers,
+          meta: {
+            judgeLogin: true,
+            teacher:true
           }
         },
       ]
@@ -217,9 +228,9 @@ export default new Router({
             teacher:true
           }
         },{
-          path:'/correcting_papers',
-          name:'correcting_papers',
-          component:CorrectingPapers,
+          path:'/exam_student',
+          name:'exam_student',
+          component:ExamStudent,
           meta: {
             judgeLogin: true,
             teacher:true
@@ -230,6 +241,21 @@ export default new Router({
           component:ExamList,
           meta: {
             judgeLogin: true
+          }
+        },{
+          path:'/exam_score',
+          name:'exam_score',
+          component:ExamScore,
+          meta: {
+            judgeLogin: true
+          }
+        },{
+          path:'/exam_statistics',
+          name:'exam_statistics',
+          component:ExamStatistics,
+          meta: {
+            judgeLogin: true,
+            teacher:true
           }
         },
       ]

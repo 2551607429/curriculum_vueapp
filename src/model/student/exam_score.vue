@@ -1,5 +1,5 @@
 <template>
-  <div class="examList">
+  <div class="examScore">
     <div>
       <el-tabs type="border-card">
         <el-tab-pane>
@@ -36,21 +36,6 @@
                 >
                 </el-table-column>
               </template>
-              <el-table-column
-                fixed="right"
-                label="操作"
-                style="z-index: 0"
-                width="200">
-                <template slot-scope="scope">
-                  <el-button
-                    type="primary"
-                    icon="el-icon-edit"
-                    size="mini"
-                    @click.native.prevent="exam(scope.$index, tableData)"
-                  > 参加考试
-                  </el-button>
-                </template>
-              </el-table-column>
             </el-table>
             <el-pagination
               background
@@ -70,17 +55,18 @@
 </template>
 
 <script>
-    import * as examListApi from "./api/assess";
+    import * as examScoreApi from "./api/assess";
     export default {
-      name: "exam_list",
+      name: "exam_score",
       data() {
         return {
           columns:[
-            {prop:'name',label:'考试姓名',width:'180',show:true},
+            {prop:'name',label:'考试姓名',width:'200',show:true},
             {prop:'startTime',label:'开始时间',width:'180',show:true,formatter:this.timestampToTime},
             {prop:'endTime',label:'结束时间',width:'180',show:true,formatter:this.timestampToTimeEnd},
-            {prop:'totalScore',label:'总分',width:'60',show:true},
-            {prop:'curriculumName',label:'课程名称',width:'160',show:true},
+            {prop:'totalScore',label:'总分',width:'120',show:true},
+            {prop:'stuTotalScore',label:'得分',width:'120',show:true},
+            {prop:'curriculumName',label:'课程名称',width:'180',show:true},
           ],
           nowTime: '',
           tableData: [],
@@ -96,9 +82,9 @@
             option: this.$cookieStore.getCookie('option'),
             page: '',
             count: '',
-            key: 1
+            key: 2
           },
-          examListInfo:{
+          examScoreInfo:{
             id: [],
             curriculum: '',
             option: this.$cookieStore.getCookie('option'),
@@ -114,7 +100,7 @@
         }
       },
       created(){
-        this.examListInit(this.page,this.pageSize);
+        this.examScoreInit(this.page,this.pageSize);
         this.getTime();
       },
       methods: {
@@ -167,10 +153,10 @@
           return this.pageSize * (this.page - 1)  + 1+ row.index;
         },
         //初始化题型信息
-        examListInit(page,count){
+        examScoreInit(page,count){
           this.userInfo.page = page;
           this.userInfo.count = count;
-          examListApi.examListInit(this.userInfo).then(res=>{
+          examScoreApi.examListInit(this.userInfo).then(res=>{
             for(let i in res.list){
               this.tableData.push(res.list[i]);
             }
@@ -188,6 +174,22 @@
           }
           else{
             this.$alert('未到考试时间！', '提示', {
+              confirmButtonText: '确定',
+              closeOnPressEscape: 'false',
+              closeOnClickModal: 'true',
+            });
+          }
+        },
+        //批改试卷
+        correct(index, rows){
+          if(this.nowTime >= rows[index].endTime){
+            this.$cookieStore.setCookie('examId',rows[index].id);
+            this.$router.push({
+              path: '/exam_student'
+            })
+          }
+          else{
+            this.$alert('考试时间尚未结束！', '提示', {
               confirmButtonText: '确定',
               closeOnPressEscape: 'false',
               closeOnClickModal: 'true',
@@ -218,12 +220,12 @@
           this.loading = true;
           this.tableData = [];
           this.pageSize = val;
-          this.examListInit(this.page,val);
+          this.examScoreInit(this.page,val);
         },
         //点击切换页面按钮
         switchPage(val) {
           this.tableData = [];
-          this.examListInit(val,this.pageSize);
+          this.examScoreInit(val,this.pageSize);
           this.loading = true;
         },
       }
@@ -231,7 +233,7 @@
 </script>
 
 <style>
-  .examList{
+  .examScore{
     background-color: #e3e3e3;
     margin-top: 60px;
     float: right;

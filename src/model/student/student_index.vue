@@ -66,7 +66,7 @@
             case 1: this.$router.push({ path: '/' });  break;
             case 2: this.$router.push({ path: '/' });  break;
             case 3: this.$router.push({ path: '/exam_list' });  break;
-            case 4: this.$router.push({ path: '/' });  break;
+            case 4: this.$router.push({ path: '/exam_score' });  break;
           }
         }
       }

@@ -28,3 +28,14 @@ export const paperInit = (params) => {
   return http.requestPost( apiUrl+'/student/paper_init', params);
 };
 
+
+
+/**
+ * 提交试卷
+ * @param params
+ * @returns {Promise | Promise<unknown>}
+ */
+export const submitPaper = (params) => {
+  return http.requestPost( apiUrl+'/student/submit_paper', params);
+};
+

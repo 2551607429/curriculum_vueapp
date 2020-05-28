@@ -16,31 +16,19 @@
               考试管理
             </el-card>
           </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" @click.native="cardClick(3)">
-              <i class="el-icon-s-fold"></i>
-              批改试卷
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" @click.native="cardClick(4)">
-              <i class="el-icon-s-data"></i>
-              考核详情
-            </el-card>
-          </el-col>
         </el-row>
       </div>
       学习管理
       <div class="fun2">
         <el-row :gutter="12">
           <el-col :span="8">
-            <el-card shadow="hover" @click.native="cardClick(5)">
+            <el-card shadow="hover" @click.native="cardClick(3)">
               <i class="el-icon-user"></i>
               知识点管理
             </el-card>
           </el-col>
           <el-col :span="8">
-            <el-card shadow="hover" @click.native="cardClick(6)">
+            <el-card shadow="hover" @click.native="cardClick(4)">
               <i class="el-icon-user-solid"></i>
               查看学习情况
             </el-card>
@@ -51,7 +39,7 @@
       <div class="fun2">
         <el-row :gutter="12">
           <el-col :span="8">
-            <el-card shadow="hover" @click.native="cardClick(7)">
+            <el-card shadow="hover" @click.native="cardClick(5)">
               <i class="el-icon-message-solid"></i>
               公告管理
             </el-card>
@@ -87,11 +75,9 @@
           switch (flag) {
             case 1: this.$router.push({ path: '/question_manage' });  break;
             case 2: this.$router.push({ path: '/exam_manage' });  break;
-            case 3: this.$router.push({ path: '/correcting_papers' });  break;
+            case 3: this.$router.push({ path: '/' });  break;
             case 4: this.$router.push({ path: '/' });  break;
-            case 5: this.$router.push({ path: '/' });  break;
-            case 6: this.$router.push({ path: '/' });  break;
-            case 7: this.$router.push({ path: '/notice_manage' });  break;
+            case 5: this.$router.push({ path: '/notice_manage' });  break;
           }
         }
       }
